@@ -1,0 +1,70 @@
+name: Daily AI Tasks
+
+on:
+  schedule:
+    # 每天早上8点执行 (UTC时间，需要根据你的时区调整)
+    - cron: '0 8 * * *'
+  workflow_dispatch: # 支持手动触发
+
+jobs:
+  generate-daily-tasks:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        npm install axios nodemailer date-fns
+
+    - name: Generate Work Reminders
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        EMAIL_SERVICE: ${{ secrets.EMAIL_SERVICE }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+      run: node scripts/generate-work-tasks.js
+
+    - name: Generate Learning Plan
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        EMAIL_SERVICE: ${{ secrets.EMAIL_SERVICE }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+      run: node scripts/generate-learning-tasks.js
+
+    - name: Generate Health Suggestions
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        EMAIL_SERVICE: ${{ secrets.EMAIL_SERVICE }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+      run: node scripts/generate-health-tasks.js
+
+    - name: Generate Market Analysis
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        EMAIL_SERVICE: ${{ secrets.EMAIL_SERVICE }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+      run: node scripts/generate-market-tasks.js
+
+    - name: Send Daily Summary
+      env:
+        EMAIL_SERVICE: ${{ secrets.EMAIL_SERVICE }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+      run: node scripts/send-daily-summary.js
