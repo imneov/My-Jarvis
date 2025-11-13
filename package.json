@@ -11,6 +11,7 @@
     "generate:market": "node scripts/generate-market-tasks.js",
     "generate:all": "npm run generate:work && npm run generate:learning && npm run generate:health && npm run generate:market",
     "send:summary": "node scripts/send-daily-summary.js",
+    "check:bwg": "node scripts/check-bwg-disk.js",
     "test:email": "node -e \"const EmailSender = require('./scripts/email-sender'); new EmailSender().sendTestEmail();\""
   },
   "keywords": [
