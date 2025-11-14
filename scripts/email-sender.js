@@ -3,7 +3,14 @@
  * 支持发送HTML格式的邮件通知
  */
 
-const nodemailer = require('nodemailer');
+let nodemailer;
+try {
+  nodemailer = require('nodemailer');
+} catch (error) {
+  console.warn('⚠️ nodemailer not available:', error.message);
+}
+
+const axios = require('axios');
 
 class EmailSender {
   constructor() {
@@ -11,6 +18,7 @@ class EmailSender {
     this.emailUser = process.env.EMAIL_USER;
     this.emailPass = process.env.EMAIL_PASS;
     this.notificationEmail = process.env.NOTIFICATION_EMAIL;
+    this.wechatWebhook = process.env.WECHAT_WEBHOOK_URL;
 
     // 创建邮件传输器
     this.transporter = this.createTransporter();
@@ -21,6 +29,11 @@ class EmailSender {
    * @returns {Object} nodemailer传输器对象
    */
   createTransporter() {
+    if (!nodemailer) {
+      console.warn('⚠️ nodemailer module not available');
+      return null;
+    }
+
     if (!this.emailUser || !this.emailPass) {
       console.warn('⚠️ Email credentials not configured, emails will not be sent');
       return null;
@@ -173,6 +186,79 @@ class EmailSender {
   }
 
   /**
+   * 发送企业微信通知
+   * @param {string} subject - 消息标题
+   * @param {string} content - 消息内容
+   * @returns {Promise<boolean>} 发送结果
+   */
+  async sendWechatNotification(subject, content) {
+    if (!this.wechatWebhook) {
+      console.log('⚠️ WeChat webhook not configured');
+      return false;
+    }
+
+    try {
+      // 格式化内容，移除过多的markdown格式，保留重要信息
+      const formattedContent = this.formatContentForWechat(subject, content);
+
+      const response = await axios.post(this.wechatWebhook, {
+        msgtype: 'text',
+        text: {
+          content: formattedContent
+        }
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data && response.data.errcode === 0) {
+        console.log('✅ WeChat notification sent successfully');
+        console.log(`📱 Webhook response: ${response.data.errmsg}`);
+        return true;
+      } else {
+        console.error('❌ WeChat notification failed:', response.data);
+        return false;
+      }
+
+    } catch (error) {
+      console.error('❌ Failed to send WeChat notification:', error.message);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+      }
+      return false;
+    }
+  }
+
+  /**
+   * 格式化内容为企业微信文本格式
+   * @param {string} subject - 标题
+   * @param {string} content - 内容
+   * @returns {string} 格式化后的内容
+   */
+  formatContentForWechat(subject, content) {
+    // 移除复杂的markdown格式，保留基本结构
+    let formatted = content
+      // 移除HTML标签
+      .replace(/<[^>]*>/g, '')
+      // 简化标题
+      .replace(/^#{1,3}\s+/gm, '')
+      // 保留重要的标记
+      .replace(/\*\*(.*?)\*\*/g, '【$1】')
+      .replace(/\*(.*?)\*/g, '$1')
+      // 移除代码块标记
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/`([^`]+)`/g, '$1')
+      // 清理多余空行
+      .replace(/\n{3,}/g, '\n\n')
+      // 限制长度
+      .substring(0, 1800);
+
+    // 添加标题
+    return `📋 ${subject}\n\n${formatted}\n\n⏰ 发送时间: ${new Date().toLocaleString('zh-CN')}`;
+  }
+
+  /**
    * 发送邮件
    * @param {string} subject - 邮件主题
    * @param {string} content - 邮件内容(支持Markdown)
@@ -180,6 +266,12 @@ class EmailSender {
    * @returns {Promise<boolean>} 发送结果
    */
   async sendEmail(subject, content, to = null) {
+    // 优先使用企业微信通知
+    if (this.wechatWebhook) {
+      console.log('🚀 Using WeChat webhook for notification');
+      return await this.sendWechatNotification(subject, content);
+    }
+
     if (!this.transporter) {
       console.log('📧 Email transporter not available, content would be:');
       console.log(`Subject: ${subject}`);
