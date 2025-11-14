@@ -61,6 +61,20 @@ jobs:
         NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
       run: node scripts/generate-market-tasks.js
 
+    - name: Check BWG Disk Usage
+      env:
+        BWG_VEID: ${{ secrets.BWG_VEID }}
+        BWG_API_KEY: ${{ secrets.BWG_API_KEY }}
+        BWG_DISK_WARNING_THRESHOLD: ${{ secrets.BWG_DISK_WARNING_THRESHOLD || '80' }}
+        BWG_DISK_CRITICAL_THRESHOLD: ${{ secrets.BWG_DISK_CRITICAL_THRESHOLD || '90' }}
+        BWG_SEND_DAILY_REPORT: ${{ secrets.BWG_SEND_DAILY_REPORT || 'false' }}
+        EMAIL_SERVICE: ${{ secrets.EMAIL_SERVICE }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+      run: node scripts/check-bwg-disk.js
+      continue-on-error: true
+
     - name: Send Daily Summary
       env:
         EMAIL_SERVICE: ${{ secrets.EMAIL_SERVICE }}

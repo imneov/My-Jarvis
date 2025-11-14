@@ -30,6 +30,12 @@ AI Jarvis 是一个基于 Claude AI 和 GitHub Actions 的智能个人助手系�
    - 技能市场需求
    - 竞品动态追踪
 
+5. **💾 BWG 磁盘监控** - BandwagonHost VPS 磁盘使用监控
+   - 每日自动检查磁盘使用情况
+   - 磁盘空间警告和严重提醒
+   - 详细的服务器状态报告
+   - 流量使用情况统计
+
 ## 🚀 快速开始
 
 ### 1. 克隆项目
@@ -63,7 +69,22 @@ NOTIFICATION_EMAIL=your-notification@gmail.com  # 接收邮箱
 
 # GitHub API 配置 (可选，用于更好的工作提醒)
 GITHUB_TOKEN=your-github-token
+
+# BWG VPS 监控配置 (可选)
+BWG_VEID=666722                    # BWG 服务器 VEID
+BWG_API_KEY=your-bwg-api-key       # BWG API Key
+BWG_DISK_WARNING_THRESHOLD=80      # 磁盘警告阈值 (%)，默认 80
+BWG_DISK_CRITICAL_THRESHOLD=90     # 磁盘严重阈值 (%)，默认 90
+BWG_SEND_DAILY_REPORT=false        # 是否发送每日正常报告，默认 false
 \`\`\`
+
+#### 获取 BWG API Key
+
+1. 登录 [BandwagonHost 控制面板](https://bwh88.net/clientarea.php)
+2. 进入 Services > My Services
+3. 点击要监控的 VPS
+4. 在 KiwiVM Control Panel 中找到 API Key
+5. VEID 可以在 URL 或服务详情中找到
 
 #### 获取 Claude API Key
 
@@ -113,6 +134,7 @@ My-Jarvis/
 │   ├── generate-learning-tasks.js  # 学习任务生成
 │   ├── generate-health-tasks.js    # 健康任务生成
 │   ├── generate-market-tasks.js    # 市场分析生成
+│   ├── check-bwg-disk.js           # BWG VPS 磁盘监控
 │   └── send-daily-summary.js       # 每日汇总发送
 ├── tasks/                          # 生成的任务文件存储
 ├── package.json
