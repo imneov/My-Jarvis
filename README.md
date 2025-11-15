@@ -61,7 +61,11 @@ npm install
 # Claude AI API 配置
 ANTHROPIC_API_KEY=your-claude-api-key
 
-# 邮件发送配置
+# 通知方式配置 (二选一或同时配置)
+# 方式1: 企业微信 Webhook (推荐)
+WECHAT_WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your-key
+
+# 方式2: 邮件发送配置
 EMAIL_SERVICE=gmail          # 邮件服务提供商
 EMAIL_USER=your-email@gmail.com    # 发送邮箱
 EMAIL_PASS=your-app-password       # 邮箱应用专用密码
@@ -76,6 +80,26 @@ BWG_API_KEY=your-bwg-api-key       # BWG API Key
 BWG_DISK_WARNING_THRESHOLD=80      # 磁盘警告阈值 (%)，默认 80
 BWG_DISK_CRITICAL_THRESHOLD=90     # 磁盘严重阈值 (%)，默认 90
 BWG_SEND_DAILY_REPORT=false        # 是否发送每日正常报告，默认 false
+\`\`\`
+
+> **💡 通知方式说明**：
+> - 如果配置了 `WECHAT_WEBHOOK_URL`，系统将优先使用企业微信 webhook 发送通知
+> - 如果未配置企业微信，则会尝试使用邮件发送
+> - 两者都未配置时，通知信息将仅输出到日志中
+
+#### 获取企业微信 Webhook URL
+
+1. 登录 [企业微信管理后台](https://work.weixin.qq.com/)
+2. 进入「应用管理」→「群机器人」
+3. 在需要接收通知的群聊中添加群机器人
+4. 获取 Webhook URL，格式如：`https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxxxx`
+5. 将 Webhook URL 添加到 GitHub Secrets 中的 `WECHAT_WEBHOOK_URL`
+
+**测试企业微信通知：**
+\`\`\`bash
+curl https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your-key \\
+  -H 'Content-Type: application/json' \\
+  -d '{"msgtype": "text", "text": {"content": "hello world"}}'
 \`\`\`
 
 #### 获取 BWG API Key
@@ -198,11 +222,24 @@ schedule:
 
 ## 🐛 故障排除
 
+### 企业微信通知失败
+
+1. 验证 Webhook URL 是否正确配置
+2. 测试 Webhook 是否可用（使用上述 curl 命令）
+3. 检查企业微信群机器人是否被移除
+4. 确认消息格式符合企业微信 API 要求
+5. 查看 GitHub Actions 运行日志中的详细错误信息
+
 ### 邮件发送失败
 
 1. 检查邮箱配置和应用专用密码
 2. 确认邮件服务商设置正确
 3. 查看 GitHub Actions 运行日志
+4. 确认 nodemailer 依赖已正确安装
+
+**常见问题：**
+- **`nodemailer.createTransporter is not a function`**: 这通常表示 nodemailer 模块导入失败，已在最新版本修复
+- 如果邮件发送持续失败，建议切换到企业微信 webhook 方式
 
 ### AI 任务生成失败
 

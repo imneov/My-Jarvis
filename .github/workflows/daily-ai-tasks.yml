@@ -31,6 +31,7 @@ jobs:
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        WECHAT_WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
       run: node scripts/generate-work-tasks.js
 
     - name: Generate Learning Plan
@@ -41,6 +42,7 @@ jobs:
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        WECHAT_WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
       run: node scripts/generate-learning-tasks.js
 
     - name: Generate Health Suggestions
@@ -50,6 +52,7 @@ jobs:
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        WECHAT_WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
       run: node scripts/generate-health-tasks.js
 
     - name: Generate Market Analysis
@@ -59,6 +62,7 @@ jobs:
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        WECHAT_WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
       run: node scripts/generate-market-tasks.js
 
     - name: Check BWG Disk Usage
@@ -72,6 +76,7 @@ jobs:
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        WECHAT_WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
       run: node scripts/check-bwg-disk.js
       continue-on-error: true
 
@@ -81,4 +86,5 @@ jobs:
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        WECHAT_WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
       run: node scripts/send-daily-summary.js
